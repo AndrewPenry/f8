@@ -12,16 +12,20 @@ class Router {
     public $vars = array();
     public $seo;
 
-    public static $rawurl;				// The raw url from the request uri (includes query)
-    public static $rawurlnoquery;		// The raw url with the query string removed.
+    public $rawurl;				// The raw url from the request uri (includes query)
+    public $rawurlnoquery;		// The raw url with the query string removed.
+    public $logger;             // A PSR-3 compatable logger
+
+    public function __construct(\Psr\Log\LoggerInterface $logger){
+        $this->logger = $logger;
+
+        $this->rawurl = $_SERVER['REQUEST_URI'];
+        $this->rawurlnoquery = strpos($this->rawurl, '?') === false ? $this->rawurl : substr($this->rawurl, 0, strpos($this->rawurl, '?'));
+    }
+
 
     public function go() {
-
-        self::$rawurl = $_SERVER['REQUEST_URI'];
-        self::$rawurlnoquery = strpos(self::$rawurl, '?') === false ? self::$rawurl : substr(self::$rawurl, 0, strpos(self::$rawurl, '?'));
-
-        $this->parseRoute(self::$rawurlnoquery)->verifyRoute($errors)->followRoute($errors);
-
+        $this->parseRoute($this->rawurlnoquery)->verifyRoute($errors)->followRoute($errors);
     }
 
     public function parseRoute($url) {
@@ -93,7 +97,7 @@ class Router {
 
 
 
-    static public function makeRelativeURL($controller, $action, array $vars, $seo = "") {
+    public function makeRelativeURL($controller, $action, array $vars, $seo = "") {
 
         $url = '/'.$controller.'/'.$action;
 
