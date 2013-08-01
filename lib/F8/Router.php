@@ -4,7 +4,7 @@ namespace F8;
 
 use Sluggo\Sluggo;
 
-class Router {
+abstract class Router {
 
     public $url;
     public $controller;
@@ -15,12 +15,15 @@ class Router {
     public $rawurl;				// The raw url from the request uri (includes query)
     public $rawurlnoquery;		// The raw url with the query string removed.
 
-
     public $logger;             // A PSR-3 compatible logger (Required)
     public $viewSwitch;         // The ViewSwitch for handling different view types
     public $connection;         // A db connection, most likely MongoDB (Optional)
 
+    public $debug = 0;          // 0 = none, 1 = critical, 2 = info
+
     public $appNamespace = 'App';
+
+    abstract public function getConnection();
 
     public function __construct(\Psr\Log\LoggerInterface $logger, \F8\ViewSwitch $viewSwitch){
         $this->logger = $logger;
@@ -41,7 +44,6 @@ class Router {
         $urlParts = explode('/', $url);
 
         if ($urlParts[0] == '') array_shift($urlParts); // If the url starts with a / then the first part will be empty.
-
 
         // Treat the first two parts differently
         $controllerCandidate = array_shift($urlParts);
@@ -85,9 +87,16 @@ class Router {
         } else {
             return false;
         }
-
-
     }
+
+    function getVar($var){
+        if (isset($this->vars[$var])) {
+            return $this->vars[$var];
+        } else {
+            return null;
+        }
+    }
+
 
     /**
      * @param array $errors
@@ -122,29 +131,21 @@ class Router {
     }
 
     public function followRoute(& $errors){
-
         $cName = $this->appNamespace.'\\Controller\\'.$this->controller;
         $c = new $cName();
         $a = $this->action;
         return $c->$a($this);
-
     }
 
-
-
     public function makeRelativeURL($controller, $action, array $vars, $seo = "") {
-
         $url = '/'.$controller.'/'.$action;
-
         foreach($vars as $key=>$value) {
             $url .= '/'.$key.':'.rawurlencode($value);
         }
-
         if ($seo) {
             $sluggo = new Sluggo($seo);
             $url .= '/'.$sluggo->getSlug();
         }
-
         return $url;
     }
 
