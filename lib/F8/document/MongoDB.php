@@ -2,6 +2,8 @@
 
 namespace F8\Document;
 use F8\Document;
+use F8\Error;
+
 
 class MongoDB extends Document {
 
@@ -29,7 +31,27 @@ class MongoDB extends Document {
      */
     public function create($options, &$errors)
     {
-        // TODO: Implement create() method.
+        /** @var \MongoDB $db */
+        $db = $this->_router->getConnection($errors);
+        $collection = $db->selectCollection($this->_collection);
+
+        $array = $this->_router->objectToArray($this);
+
+        if (is_null($array['_id'])){
+            unset($array['_id']);
+        }
+
+        try {
+            if ($collection->insert($array)) {
+                $this->_id = $array['_id'];
+            } else {
+                $errors[] = new Error($this->_router, "Document could not be created", 803002, array('document-type'=>get_class($this)));
+            }
+        } catch (\MongoException $e) {
+            $errors[] = new Error($this->_router, "Document could not be created", 803002, array('exception'=>$e, 'document-type'=>get_class($this)));
+        }
+
+        return $this;
     }
 
     /**
@@ -46,7 +68,7 @@ class MongoDB extends Document {
         ), $options);
 
         /** @var \MongoDB $db */
-        $db = $this->_router->getConnection();
+        $db = $this->_router->getConnection($errors);
         $collection = $db->selectCollection($this->_collection);
 
         $record = $collection->findOne(array("_id"=>$this->_id));
@@ -88,6 +110,7 @@ class MongoDB extends Document {
     {
         // TODO: Implement delete() method.
     }
+
 
 
 }

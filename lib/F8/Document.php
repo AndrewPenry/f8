@@ -20,19 +20,20 @@ use F8\Router;
 abstract class Document {
 
     protected $_router;
-    public $_fit_errors;
+    protected $_fit_errors = array();
 
     public function __construct(Router $router){
         $this->_router = $router;
     }
 
     /**
-     * Packs data from an associaitve array source into the document.
-     * Does not handle setting object types or anything fancy. That should be implemented by
-     * overriding this function.
+     * Packs data from an associative array source into the document.
+     * Does not handle setting object types or anything fancy. That should be implemented by overriding this function.
      *
-     * If strict is set to true, the key must match a public property of the Document.
+     * If strict is set to true, the key must match a public property of the Document. Doing so is slow (due to
+     * reflection), so it is only recommended during debugging and development.
      *
+     * @param array $array
      * @param bool $strict
      * @return $this
      */
@@ -42,8 +43,8 @@ abstract class Document {
             return $this;
         }
 
+        $props = array();
         if ($strict) {
-            $props = array();
             $reflection = new \ReflectionClass($this);
             $r_props = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
             foreach ($r_props as $p) {
@@ -64,6 +65,22 @@ abstract class Document {
 
         return $this;
 
+    }
+
+    /**
+     * Get the array of fit errors from the last call of fit.
+     *
+     * @return \F8\Error[]
+     */
+    public function getFitErrors(){
+        return $this->_fit_errors;
+    }
+
+    /**
+     * Clear the Fit Errors array.
+     */
+    public function clearFitErrors(){
+        $this->_fit_errors = array();
     }
 
 

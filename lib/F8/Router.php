@@ -23,7 +23,7 @@ abstract class Router {
 
     public $appNamespace = 'App';
 
-    abstract public function getConnection();
+    abstract public function getConnection(&$errors);
 
     public function __construct(\Psr\Log\LoggerInterface $logger, \F8\ViewSwitch $viewSwitch){
         $this->logger = $logger;
@@ -34,7 +34,8 @@ abstract class Router {
     }
 
     public function go() {
-        $data = $this->parseRoute($this->rawurlnoquery)->verifyRoute($errors)->followRoute($errors);
+        $this->parseRoute($this->rawurlnoquery)->verifyRoute($errors);
+        $data = $this->followRoute($errors);
         $this->viewSwitch->go($this, $data, $errors);
     }
 
@@ -100,7 +101,7 @@ abstract class Router {
 
     /**
      * @param array $errors
-     * @return Router $this
+     * @return \F8\Router $this
      */
     public function verifyRoute(& $errors){
         if (!is_array($errors)) $errors = array();
@@ -149,5 +150,23 @@ abstract class Router {
         return $url;
     }
 
+    /**
+     * This converts only public methods of an object into an associative array. It does so recursively and is suitable
+     * to prepare objects for insertion into MongoDB. (MongoDB will throw an error if objects have private or protected
+     * properties.)
+     *
+     * @param $object
+     * @return array
+     */
+    public function objectToArray( $object ) {
+        if( !is_object( $object ) && !is_array( $object ) ) {
+            return $object;
+        }
+        if( is_object( $object ) ) {
+            if (strpos(get_class($object), 'Mongo') === 0) return $object;
+            $object = get_object_vars($object);
+        }
+        return array_map( array( $this, 'objectToArray'), $object );
+    }
 
 }
