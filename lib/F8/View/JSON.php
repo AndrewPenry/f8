@@ -18,7 +18,7 @@ class JSON implements \F8\View {
     {
         // TODO: Implement render() method.
         header('Content-type: application/json');
-        echo json_encode($data, JSON_PRETTY_PRINT);
+        echo json_encode($data);
         return true;
     }
 }

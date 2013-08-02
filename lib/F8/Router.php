@@ -8,6 +8,7 @@ abstract class Router {
 
     public $url;
     public $controller;
+    public $uc_controller;
     public $action;
     public $vars = array();
     public $seo;
@@ -69,6 +70,8 @@ abstract class Router {
         if (empty($this->controller)) $this->controller = 'index';
         if (empty($this->action)) $this->action = 'view';
 
+        $this->uc_controller = ucfirst($this->controller);
+
         return $this;
     }
 
@@ -106,21 +109,21 @@ abstract class Router {
     public function verifyRoute(& $errors){
         if (!is_array($errors)) $errors = array();
 
-        if (!class_exists($this->appNamespace.'\\Controller\\'.$this->controller, true)) {
-            $errors[] = array('code'=>'1000', 'message'=>sprintf(\_('%s not found.'), $this->controller));
+        if (!class_exists($this->appNamespace.'\\Controller\\'.$this->uc_controller, true)) {
+            $errors[] = array('code'=>'1000', 'message'=>sprintf(\_('%s not found.'), $this->uc_controller));
             $this->controller = 'Error';
             $this->action = '_404';
             $this->vars = array('errors' => $errors);
             return $this;
         }
-        if (!in_array('F8\\Controller', class_implements($this->appNamespace.'\\Controller\\'.$this->controller, true))) {
-            $errors[] = array('code'=>'1001', 'message'=>sprintf(\_('%s is not a controller.'), $this->controller));
+        if (!in_array('F8\\Controller', class_implements($this->appNamespace.'\\Controller\\'.$this->uc_controller, true))) {
+            $errors[] = array('code'=>'1001', 'message'=>sprintf(\_('%s is not a controller.'), $this->uc_controller));
             $this->controller = 'Error';
             $this->action = '_404';
             $this->vars = array('errors' => $errors);
             return $this;
         }
-        if (!is_callable(array($this->appNamespace.'\\Controller\\'.$this->controller, $this->action))) {
+        if (!is_callable(array($this->appNamespace.'\\Controller\\'.$this->uc_controller, $this->action))) {
             $errors[] = array('code'=>'1002', 'message'=>sprintf(\_('%s action does not exist.'), $this->action));
             $this->controller = 'Error';
             $this->action = '_404';
@@ -132,7 +135,7 @@ abstract class Router {
     }
 
     public function followRoute(& $errors){
-        $cName = $this->appNamespace.'\\Controller\\'.$this->controller;
+        $cName = $this->appNamespace.'\\Controller\\'.$this->uc_controller;
         $c = new $cName();
         $a = $this->action;
         return $c->$a($this);
