@@ -22,19 +22,20 @@ class Twig implements \F8\View {
     /**
      * Renders the output. Should end up echoing or otherwise transmitting data.
      *
-     * @param Router $route
-     * @param mixed $data
+     * @param Router $router
+     * @param array $data
      * @param array $errors
      * @return boolean
      */
-    public function render(Router $route, $data, &$errors)
+    public function render(Router $router, $data, &$errors)
     {
 
-        $path = $route->controller.'/'.$route->action.'.twig';
+        $path = $router->controller.'/'.$router->action.'.twig';
 
         try {
             $template = $this->twig->loadTemplate($path);
-            $route->logger->debug("Template $path");
+            $router->logger->debug("Template $path");
+            $data['_router'] = $router;
             echo $template->render($data);
             return true;
         } catch (\Exception $e) {

@@ -9,12 +9,12 @@ class JSON implements \F8\View {
     /**
      * Renders the output. Should end up echoing or otherwise transmitting data.
      *
-     * @param Router $route
+     * @param Router $router
      * @param mixed $data
      * @param array $errors
      * @return boolean
      */
-    public function render(Router $route, $data, &$errors)
+    public function render(Router $router, $data, &$errors)
     {
         // TODO: Implement render() method.
         header('Content-type: application/json');
