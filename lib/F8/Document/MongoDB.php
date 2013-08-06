@@ -5,9 +5,9 @@ use F8\Document;
 use F8\Error;
 
 
-class MongoDB extends Document {
+trait MongoDB {
 
-    protected $_collection;
+    public $_collection;
     public $_id;
 
     /**
