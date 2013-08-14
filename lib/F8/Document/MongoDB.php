@@ -6,9 +6,14 @@ use F8\Document;
 
 trait MongoDB {
 
+    // TODO make this into abstract functions getMongoId and setMongoID
     public $_id;
 
-    abstract function getCollection();
+    /**
+     * Return the value for _id or null
+     * @return mixed
+     */
+    abstract function getMongoCollection();
 
     /**
      * For finding more than one document
@@ -35,7 +40,7 @@ trait MongoDB {
         $r = $this->_router;
         /** @var \MongoDB $db */
         $db = $r->getConnection($errors);
-        $collection = $db->selectCollection($this->getCollection());
+        $collection = $db->selectCollection($this->getMongoCollection());
 
         $document = $r->objectToArray($this);
 
@@ -44,7 +49,7 @@ trait MongoDB {
         }
 
         try {
-            if ($collection->insert($array)) {
+            if ($collection->insert($document)) {
                 $this->_id = $document['_id'];
             } else {
                 $errors[] = $r->messageFactory->message(_("Document could not be created"), 803002, array('document-type'=>get_class($this)));
@@ -76,7 +81,7 @@ trait MongoDB {
         $r = $this->_router;
         /** @var \MongoDB $db */
         $db = $this->_router->getConnection($errors);
-        $collection = $db->selectCollection($this->getCollection());
+        $collection = $db->selectCollection($this->getMongoCollection());
 
         $document = $collection->findOne($options['query'], $options['fields']);
         if (is_null($document)) {
@@ -135,7 +140,7 @@ trait MongoDB {
         $r = $this->_router;
         /** @var \MongoDB $db */
         $db = $r->getConnection($errors);
-        $collection = $db->selectCollection($this->getCollection());
+        $collection = $db->selectCollection($this->getMongoCollection());
 
         $document = $this->_router->objectToArray($this);
 
