@@ -15,23 +15,41 @@ abstract class Router {
 
     public $rawurl;				// The raw url from the request uri (includes query)
     public $rawurlnoquery;		// The raw url with the query string removed.
+    public $is_post = false;
 
     public $logger;             // A PSR-3 compatible logger (Required)
     public $viewSwitch;         // The ViewSwitch for handling different view types
+
+    public $messageFactory;     // The messageFactory for creating new messages (dangers, warnings, successes, infos)
     public $connection;         // A db connection, most likely MongoDB (Optional)
 
     public $debug = 0;          // 0 = none, 1 = critical, 2 = info
+
+    public $dangers = [];
+    public $warnings = [];
+    public $successes = [];
+    public $infos = [];
 
     public $appNamespace = 'App';
 
     abstract public function getConnection(&$errors);
 
     public function __construct(\Psr\Log\LoggerInterface $logger, \F8\ViewSwitch $viewSwitch){
+        session_start();
         $this->logger = $logger;
         $this->viewSwitch = $viewSwitch;
+        $this->messageFactory = new \F8\ErrorFactory($this, '\F8\Error');
 
         $this->rawurl = $_SERVER['REQUEST_URI'];
         $this->rawurlnoquery = strpos($this->rawurl, '?') === false ? $this->rawurl : substr($this->rawurl, 0, strpos($this->rawurl, '?'));
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') $this->is_post = true;
+
+        if (!empty($_SESSION['f8_statusArray'])) {
+            list($this->dangers, $this->warnings, $this->successes, $this->infos) = $_SESSION['f8_statusArray'];
+            unset($_SESSION['f8_statusArray']);
+        }
+
     }
 
     public function go() {
@@ -171,5 +189,33 @@ abstract class Router {
         }
         return array_map( array( $this, 'objectToArray'), $object );
     }
+
+    public function danger($message, $code = 809000, $extra = array()){
+        $this->dangers[] = $this->messageFactory->message($message, $code, $extra);
+    }
+    public function warning($message, $code = 809000, $extra = array()){
+        $this->warnings[] = $this->messageFactory->message($message, $code, $extra);
+    }
+    public function success($message, $code = 809000, $extra = array()){
+        $this->successes[] = $this->messageFactory->message($message, $code, $extra);
+    }
+    public function info($message, $code = 809000, $extra = array()){
+        $this->infos[] = $this->messageFactory->message($message, $code, $extra);
+    }
+
+    public function addErrorsToDangers($errors) {
+        foreach ($errors as $error) {
+            if ($error instanceof \F8\Error) {
+                $this->dangers[] = $error;
+            }
+        }
+    }
+
+    public function redirect($url){
+        $_SESSION['f8_statusArray'] = [$this->dangers, $this->warnings, $this->successes, $this->infos];
+        header('Location: ' . $url);
+        exit();
+    }
+
 
 }

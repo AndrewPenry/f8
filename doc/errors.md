@@ -31,8 +31,8 @@ The are HTTP errors. They probably don't need logged separately, as default logg
 -  803001 Document not found
 -  803002 Failed to insert Document
 -  803003 Failed to update Document
--  803004 Invalid Query
--  803006 Key does not exist in model document
+-  803004 Failed to save Document
+-  803050 Invalid Query
 -  803901 Could not connect to DB
 
 

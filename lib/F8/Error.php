@@ -15,8 +15,5 @@ class Error {
         $this->error = $error;
         $this->code = $code;
         $this->extra = $extra;
-
-        if ($router->debug == 2) $router->logger->info("Error Constructed: {$code}: {$error}", $extra);
     }
-
 }

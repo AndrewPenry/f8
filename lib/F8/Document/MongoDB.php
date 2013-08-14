@@ -2,13 +2,13 @@
 
 namespace F8\Document;
 use F8\Document;
-use F8\Error;
 
 
 trait MongoDB {
 
-    public $_collection;
     public $_id;
+
+    abstract function getCollection();
 
     /**
      * For finding more than one document
@@ -31,24 +31,27 @@ trait MongoDB {
      */
     public function create($options, &$errors)
     {
+        /** @var \F8\Router $r */
+        $r = $this->_router;
         /** @var \MongoDB $db */
-        $db = $this->_router->getConnection($errors);
-        $collection = $db->selectCollection($this->_collection);
+        $db = $r->getConnection($errors);
+        $collection = $db->selectCollection($this->getCollection());
 
-        $array = $this->_router->objectToArray($this);
+        $document = $r->objectToArray($this);
 
-        if (is_null($array['_id'])){
-            unset($array['_id']);
+        if (is_null($document['_id'])){
+            unset($document['_id']);
         }
 
         try {
             if ($collection->insert($array)) {
-                $this->_id = $array['_id'];
+                $this->_id = $document['_id'];
             } else {
-                $errors[] = new Error($this->_router, "Document could not be created", 803002, array('document-type'=>get_class($this)));
+                $errors[] = $r->messageFactory->message(_("Document could not be created"), 803002, array('document-type'=>get_class($this)));
             }
         } catch (\MongoException $e) {
-            $errors[] = new Error($this->_router, "Document could not be created", 803002, array('exception'=>$e, 'document-type'=>get_class($this)));
+            $r->logger->error('Mongo Exception', ['exception' => $e->getMessage()]);
+            $errors[] = $r->messageFactory->message(_("Document could not be created"), 803002, array('document-type'=>get_class($this)));
         }
 
         return $this;
@@ -63,19 +66,23 @@ trait MongoDB {
      */
     public function read($options, &$errors)
     {
-        $options = array_merge(array(
-            'fit_strict' => false,
-        ), $options);
+        $options = array_merge([
+                'fit_strict' => false,
+                'query' => ["_id"=>$this->_id],
+                'fields' => [],
+            ], $options);
 
+        /** @var \F8\Router $r */
+        $r = $this->_router;
         /** @var \MongoDB $db */
         $db = $this->_router->getConnection($errors);
-        $collection = $db->selectCollection($this->_collection);
+        $collection = $db->selectCollection($this->getCollection());
 
-        $record = $collection->findOne(array("_id"=>$this->_id));
-        if (is_null($record)) {
-            $errors[] = new Error($this->_router, _("Document Not Found"), 803001);
+        $document = $collection->findOne($options['query'], $options['fields']);
+        if (is_null($document)) {
+            $errors[] = $r->messageFactory->message(_("Document Not Found"), 803001, array('document-type'=>get_class($this)));
         } else {
-            $this->fit($record, $options['fit_strict']);
+            $this->fit($document, $options['fit_strict']);
         }
 
         return $this;
@@ -109,6 +116,47 @@ trait MongoDB {
     public function delete($options, &$errors)
     {
         // TODO: Implement delete() method.
+    }
+
+
+    /**
+     * For saving one document.
+     * Most commonly, it will be the current document.
+     * Saving is a shortcut for create if new, otherwise update.
+     * MongoDB has a save function that checks to see if the _id is set
+     *
+     * @param array $options
+     * @param array $errors
+     * @return Document
+     */
+    public function save($options, &$errors)
+    {
+        /** @var \F8\Router $r */
+        $r = $this->_router;
+        /** @var \MongoDB $db */
+        $db = $r->getConnection($errors);
+        $collection = $db->selectCollection($this->getCollection());
+
+        $document = $this->_router->objectToArray($this);
+
+        if (is_null($document['_id'])){
+            unset($document['_id']);
+        }
+
+        try {
+            if ($collection->save($document)) {
+                $this->_id = $document['_id'];
+            } else {
+                $errors[] = $r->messageFactory->message(_("Document could not be saved"), 803004, array('document-type'=>get_class($this)));
+            }
+        } catch (\MongoException $e) {
+            $r->logger->error('Mongo Exception', ['exception' => $e->getMessage()]);
+            $errors[] = $r->messageFactory->message(_("Document could not be saved"), 803004, array('document-type'=>get_class($this)));
+        }
+
+        return $this;
+
+        // TODO: Implement save() method.
     }
 
 

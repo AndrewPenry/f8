@@ -34,11 +34,14 @@ class Twig implements \F8\View {
 
         try {
             $template = $this->twig->loadTemplate($path);
-            $router->logger->debug("Template $path");
             $data['_router'] = $router;
             echo $template->render($data);
             return true;
+        } catch (\Twig_Error_Loader $e) {
+            $router->logger->debug("Twig template not found", ['path'=>$path, 'exception'=>$e->getMessage()]);
+            return false;
         } catch (\Exception $e) {
+            $router->logger->critical("Twig template rendering failed", ['path'=>$path, 'exception'=>$e->getMessage()]);
             return false;
         }
 
