@@ -5,6 +5,7 @@ namespace F8\View;
 use F8\Router;
 
 class JSON implements \F8\View {
+    public $pretty = false;
 
     /**
      * Renders the output. Should end up echoing or otherwise transmitting data.
@@ -18,7 +19,11 @@ class JSON implements \F8\View {
     {
         // TODO: Implement render() method.
         header('Content-type: application/json');
-        echo json_encode($data);
+        if ($this->pretty) {
+            echo json_encode($data, JSON_PRETTY_PRINT);
+        } else {
+            echo json_encode($data);
+        }
         return true;
     }
 }

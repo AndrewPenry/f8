@@ -24,7 +24,37 @@ trait MongoDB {
      */
     public function search($options, &$errors)
     {
-        // TODO: Implement search() method.
+        $options = array_merge([
+                'fit_strict' => false,
+                'query' => [],
+                'fields' => [],
+                'limit' => false,
+                'sort' => [],
+            ], $options);
+
+        /** @var \F8\Router $r */
+        $r = $this->_router;
+        /** @var \MongoDB $db */
+        $db = $r->getConnection($errors);
+        $collection = $db->selectCollection($this->getMongoCollection());
+
+        $cursor = $collection->find($options['query'], $options['fields']);
+        if ($options['sort']) {
+            $cursor->sort($options['sort']);
+        }
+        if ($options['limit'] !== false) {
+            $cursor->limit($options['limit']);
+        }
+
+        $objects = [];
+        foreach ($cursor as $document) {
+            $object = clone $this;
+            $object->fit($document, $options['fit_strict']);
+            $objects[] = $object;
+        }
+
+        return $objects;
+
     }
 
     /**
