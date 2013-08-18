@@ -150,7 +150,17 @@ trait MongoDB {
      */
     public function delete($options, &$errors)
     {
-        // TODO: Implement delete() method.
+        $options = array_merge([
+                'query' => ["_id"=>$this->_id],
+            ], $options);
+
+        /** @var \F8\Router $r */
+        $r = $this->_router;
+        /** @var \MongoDB $db */
+        $db = $this->_router->getConnection($errors);
+        $collection = $db->selectCollection($this->getMongoCollection());
+
+        return $collection->remove($options['query']);
     }
 
 
