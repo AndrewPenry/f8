@@ -43,7 +43,7 @@ abstract class Router {
         $this->rawurl = $_SERVER['REQUEST_URI'];
         $this->rawurlnoquery = strpos($this->rawurl, '?') === false ? $this->rawurl : substr($this->rawurl, 0, strpos($this->rawurl, '?'));
 
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') $this->is_post = true;
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST)) $this->is_post = true;
 
         if (!empty($_SESSION['f8_statusArray'])) {
             list($this->dangers, $this->warnings, $this->successes, $this->infos) = $_SESSION['f8_statusArray'];
@@ -129,26 +129,34 @@ abstract class Router {
 
         if (!class_exists($this->appNamespace.'\\Controller\\'.$this->uc_controller, true)) {
             $errors[] = array('code'=>'1000', 'message'=>sprintf(\_('%s not found.'), $this->uc_controller));
-            $this->controller = 'Error';
+            $this->controller = 'Index';
+            $this->uc_controller = 'Index';
             $this->action = '_404';
             $this->vars = array('errors' => $errors);
             return $this;
         }
         if (!in_array('F8\\Controller', class_implements($this->appNamespace.'\\Controller\\'.$this->uc_controller, true))) {
             $errors[] = array('code'=>'1001', 'message'=>sprintf(\_('%s is not a controller.'), $this->uc_controller));
-            $this->controller = 'Error';
+            $this->controller = 'Index';
+            $this->uc_controller = 'Index';
             $this->action = '_404';
             $this->vars = array('errors' => $errors);
             return $this;
         }
         if (!is_callable(array($this->appNamespace.'\\Controller\\'.$this->uc_controller, $this->action))) {
             $errors[] = array('code'=>'1002', 'message'=>sprintf(\_('%s action does not exist.'), $this->action));
-            $this->controller = 'Error';
-            $this->action = '_404';
-            $this->vars = array('errors' => $errors);
+            if (is_callable(array($this->appNamespace.'\\Controller\\'.$this->uc_controller, '_404'))) {
+                // This controller has its own 404 error handling.
+                $this->action = '_404';
+                $this->vars = array('errors' => $errors);
+            } else {
+                $this->controller = 'Index';
+                $this->uc_controller = 'Index';
+                $this->action = '_404';
+                $this->vars = array('errors' => $errors);
+            }
             return $this;
         }
-
         return $this;
     }
 
