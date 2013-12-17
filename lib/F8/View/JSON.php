@@ -4,7 +4,7 @@ namespace F8\View;
 
 use F8\Router;
 
-class JSON implements \F8\View {
+class JSON extends \F8\View {
     public $pretty = false;
 
     /**

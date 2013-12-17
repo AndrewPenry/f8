@@ -1,7 +1,14 @@
 <?php
 namespace F8;
 
-interface View {
+/**
+ * Class View
+ *
+ * Views are the "V" of MVC. Views interpret the Documents and display them. A View should contain ONLY display logic.
+ *
+ * @package F8
+ */
+abstract class View {
 
     /**
      * Renders the output. Should end up echoing or otherwise transmitting data.
@@ -11,6 +18,5 @@ interface View {
      * @param array $errors
      * @return void
      */
-    public function render(Router $router, $data, &$errors);
-
+    abstract public function render(Router $router, $data, &$errors);
 }

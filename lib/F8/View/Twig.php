@@ -4,7 +4,7 @@ namespace F8\View;
 
 use F8\Router;
 
-class Twig implements \F8\View {
+class Twig extends \F8\View {
 
     protected $loader;
     protected $twig;
