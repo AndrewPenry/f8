@@ -135,7 +135,7 @@ abstract class Router {
             $this->vars = array('errors' => $errors);
             return $this;
         }
-        if (!in_array('F8\\Controller', class_implements($this->appNamespace.'\\Controller\\'.$this->uc_controller, true))) {
+        if (!is_subclass_of($this->appNamespace.'\\Controller\\'.$this->uc_controller, 'F8\\Controller')) {
             $errors[] = array('code'=>'1001', 'message'=>sprintf(\_('%s is not a controller.'), $this->uc_controller));
             $this->controller = 'Index';
             $this->uc_controller = 'Index';
