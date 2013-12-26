@@ -23,11 +23,17 @@ abstract class CurrentUser {
 
     public function logIn(Router $router, $data, &$errors) {
         $this->loggedIn = true;
+        if (session_status() == PHP_SESSION_ACTIVE) {
+            $_SESSION['f8_currentUser'] = $this;
+        }
         return $this->loggedIn;
     }
 
     public function logOut(Router $router, $data, &$errors) {
         $this->loggedIn = false;
+        if (session_status() == PHP_SESSION_ACTIVE && isset($_SESSION['f8_currentUser'])) {
+            unset($_SESSION['f8_currentUser']);
+        }
         return $this->loggedIn;
     }
 
@@ -35,6 +41,5 @@ abstract class CurrentUser {
         $this->document = $document;
         return $document;
     }
-
 
 } 
