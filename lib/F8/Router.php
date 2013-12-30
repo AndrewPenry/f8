@@ -25,12 +25,15 @@ abstract class Router {
 
     public $debug = 0;          // 0 = none, 1 = critical, 2 = info
 
+    /** @var \F8\CurrentUser */
+    public $currentUser;        // A representation of the current user
+
     public $dangers = [];
     public $warnings = [];
     public $successes = [];
     public $infos = [];
 
-    public $appNamespace = 'App';
+    protected $appNamespace = 'App';
 
     abstract public function getConnection(&$errors);
 
@@ -48,6 +51,16 @@ abstract class Router {
         if (!empty($_SESSION['f8_statusArray'])) {
             list($this->dangers, $this->warnings, $this->successes, $this->infos) = $_SESSION['f8_statusArray'];
             unset($_SESSION['f8_statusArray']);
+        }
+
+        if (!empty($_SESSION['f8_currentUser']) && $_SESSION['f8_currentUser'] instanceof \F8\CurrentUser) {
+            $this->currentUser = $_SESSION['f8_currentUser'];
+        }
+        elseif (class_exists($this->appNamespace.'\\CurrentUser', true) && is_subclass_of($this->appNamespace.'\\CurrentUser', 'F8\\CurrentUser') ) {
+            $cName = $this->appNamespace.'\\CurrentUser';
+            $this->currentUser = new $cName();
+        } else {
+            throw new \LogicException("The CurrentUser class must be provided in the Application Namespace.");
         }
 
     }

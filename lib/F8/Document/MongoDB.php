@@ -179,16 +179,16 @@ trait MongoDB {
         /** @var \F8\Router $r */
         $r = $this->_router;
         /** @var \MongoDB $db */
-        $db = $r->getConnection($errors);
-        $collection = $db->selectCollection($this->getMongoCollection());
-
-        $document = $this->_router->objectToArray($this);
-
-        if (is_null($document['_id'])){
-            unset($document['_id']);
-        }
-
         try {
+            $db = $r->getConnection($errors);
+            $collection = $db->selectCollection($this->getMongoCollection());
+
+            $document = $this->_router->objectToArray($this);
+
+            if (is_null($document['_id'])){
+                unset($document['_id']);
+            }
+
             if ($collection->save($document)) {
                 $this->_id = $document['_id'];
             } else {
