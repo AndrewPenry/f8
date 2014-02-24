@@ -142,7 +142,7 @@ abstract class Router {
 
         if (!class_exists($this->appNamespace.'\\Controller\\'.$this->uc_controller, true)) {
             $errors[] = array('code'=>'1000', 'message'=>sprintf(\_('%s not found.'), $this->uc_controller));
-            $this->controller = 'Index';
+            $this->controller = 'index';
             $this->uc_controller = 'Index';
             $this->action = '_404';
             $this->vars = array('errors' => $errors);
@@ -150,7 +150,7 @@ abstract class Router {
         }
         if (!is_subclass_of($this->appNamespace.'\\Controller\\'.$this->uc_controller, 'F8\\Controller')) {
             $errors[] = array('code'=>'1001', 'message'=>sprintf(\_('%s is not a controller.'), $this->uc_controller));
-            $this->controller = 'Index';
+            $this->controller = 'index';
             $this->uc_controller = 'Index';
             $this->action = '_404';
             $this->vars = array('errors' => $errors);
@@ -163,7 +163,7 @@ abstract class Router {
                 $this->action = '_404';
                 $this->vars = array('errors' => $errors);
             } else {
-                $this->controller = 'Index';
+                $this->controller = 'index';
                 $this->uc_controller = 'Index';
                 $this->action = '_404';
                 $this->vars = array('errors' => $errors);
@@ -237,6 +237,17 @@ abstract class Router {
         header('Location: ' . $url);
         exit();
     }
+	
+	public function sessionOrNewDocument($key, $class) {
+	
+		if (isset($_SESSION[$key]) && is_object($_SESSION[$key]) && $_SESSION[$key] instanceof $class) {
+			return $_SESSION[$key];
+		} else {
+			$_SESSION[$key] = new $class($this);
+			return $_SESSION[$key];
+		}
+	
+	}
 
 
 }
