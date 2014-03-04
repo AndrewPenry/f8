@@ -1,7 +1,6 @@
 <?php
 
 namespace F8;
-use F8\Router;
 
 class Error {
     private $_router;

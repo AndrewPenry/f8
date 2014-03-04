@@ -1,7 +1,6 @@
 <?php
 
 namespace F8;
-use F8\Router;
 
 /**
  * Class Document
@@ -89,27 +88,30 @@ abstract class Document {
      *
      * @param array $options
      * @param array $errors
+     * @param mixed $db
      * @return Document[]
      */
-    abstract public function search($options, &$errors);
+    abstract public function search($options, &$errors, $db = null);
 
     /**
      * For creating a document
      *
      * @param array $options
      * @param array $errors
+     * @param mixed $db
      * @return Document
      */
-    abstract public function create($options, &$errors);
+    abstract public function create($options, &$errors, $db = null);
 
     /**
      * For reading one document
      *
      * @param array $options
      * @param array $errors
+     * @param mixed $db
      * @return Document
      */
-    abstract public function read($options, &$errors);
+    abstract public function read($options, &$errors, $db = null);
 
     /**
      * For updating one document
@@ -117,9 +119,10 @@ abstract class Document {
      *
      * @param array $options
      * @param array $errors
+     * @param mixed $db
      * @return Document
      */
-    abstract public function update($options, &$errors);
+    abstract public function update($options, &$errors, $db = null);
 
     /**
      * For deleting one document.
@@ -131,22 +134,24 @@ abstract class Document {
      *
      * @param array $options
      * @param array $errors
+     * @param mixed $db
      * @return boolean
      */
-    abstract public function delete($options, &$errors);
+    abstract public function delete($options, &$errors, $db = null);
 
 
     /**
      * For saving one document.
      * Most commonly, it will be the current document.
      * Saving is a shortcut for create if new, otherwise update.
-     * A RDBMS inplemtation may do something like INSERT INTO ... IF DUPLICATE KEY UPDATE or REPLACE INTO
+     * A RDBMS implantation may do something like INSERT INTO ... IF DUPLICATE KEY UPDATE or REPLACE INTO
      * MongoDB has a save function that checks to see if the _id is set
      *
      * @param array $options
      * @param array $errors
+     * @param mixed $db
      * @return Document
      */
-    abstract public function save($options, &$errors);
+    abstract public function save($options, &$errors, $db = null);
 
 }

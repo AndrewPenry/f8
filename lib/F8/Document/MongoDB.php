@@ -3,14 +3,22 @@
 namespace F8\Document;
 use F8\Document;
 
-
+/**
+ * Trait MongoDB
+ * @package F8\Document
+ *
+ * This trait should only be applied to classes that extend \F8\Document.
+ * It is a default implementation of the abstract methods found in \F8\Document.
+ *
+ * @property \F8\Router $_router;
+ */
 trait MongoDB {
 
-    // TODO make this into abstract functions getMongoId and setMongoID
+    // @TODO make this into abstract functions getMongoId and setMongoID ?
     public $_id;
 
     /**
-     * Return the value for _id or null
+     * Return the value for collection or null
      * @return mixed
      */
     abstract function getMongoCollection();
@@ -20,9 +28,10 @@ trait MongoDB {
      *
      * @param array $options
      * @param array $errors
+     * @param \MongoDB $db
      * @return Document[]
      */
-    public function search($options, &$errors)
+    public function search($options, &$errors, $db = null)
     {
         $options = array_merge([
                 'fit_strict' => false,
@@ -35,7 +44,7 @@ trait MongoDB {
         /** @var \F8\Router $r */
         $r = $this->_router;
         /** @var \MongoDB $db */
-        $db = $r->getConnection($errors);
+        if (is_null($db)) $db = $r->getConnection('mongo', $errors);
         $collection = $db->selectCollection($this->getMongoCollection());
 
         $cursor = $collection->find($options['query'], $options['fields']);
@@ -62,14 +71,14 @@ trait MongoDB {
      *
      * @param array $options
      * @param array $errors
+     * @param \MongoDB $db
      * @return Document
      */
-    public function create($options, &$errors)
+    public function create($options, &$errors, $db = null)
     {
         /** @var \F8\Router $r */
         $r = $this->_router;
-        /** @var \MongoDB $db */
-        $db = $r->getConnection($errors);
+        if (is_null($db)) $db = $r->getConnection('mongo', $errors);
         $collection = $db->selectCollection($this->getMongoCollection());
 
         $document = $r->objectToArray($this);
@@ -97,9 +106,10 @@ trait MongoDB {
      *
      * @param array $options
      * @param array $errors
+     * @param \MongoDB $db
      * @return Document
      */
-    public function read($options, &$errors)
+    public function read($options, &$errors, $db = null)
     {
         $options = array_merge([
                 'fit_strict' => false,
@@ -110,7 +120,7 @@ trait MongoDB {
         /** @var \F8\Router $r */
         $r = $this->_router;
         /** @var \MongoDB $db */
-        $db = $this->_router->getConnection($errors);
+        if (is_null($db)) $db = $r->getConnection('mongo', $errors);
         $collection = $db->selectCollection($this->getMongoCollection());
 
         $document = $collection->findOne($options['query'], $options['fields']);
@@ -129,9 +139,10 @@ trait MongoDB {
      *
      * @param array $options
      * @param array $errors
+     * @param \MongoDB $db
      * @return Document
      */
-    public function update($options, &$errors)
+    public function update($options, &$errors, $db = null)
     {
         // TODO: Implement update() method.
     }
@@ -146,9 +157,10 @@ trait MongoDB {
      *
      * @param array $options
      * @param array $errors
+     * @param \MongoDB $db
      * @return boolean
      */
-    public function delete($options, &$errors)
+    public function delete($options, &$errors, $db = null)
     {
         $options = array_merge([
                 'query' => ["_id"=>$this->_id],
@@ -157,7 +169,7 @@ trait MongoDB {
         /** @var \F8\Router $r */
         $r = $this->_router;
         /** @var \MongoDB $db */
-        $db = $this->_router->getConnection($errors);
+        if (is_null($db)) $db = $r->getConnection('mongo', $errors);
         $collection = $db->selectCollection($this->getMongoCollection());
 
         return $collection->remove($options['query']);
@@ -172,15 +184,16 @@ trait MongoDB {
      *
      * @param array $options
      * @param array $errors
+     * @param \MongoDB $db
      * @return Document
      */
-    public function save($options, &$errors)
+    public function save($options, &$errors, $db = null)
     {
         /** @var \F8\Router $r */
         $r = $this->_router;
         /** @var \MongoDB $db */
         try {
-            $db = $r->getConnection($errors);
+            if (is_null($db)) $db = $r->getConnection('mongo', $errors);
             $collection = $db->selectCollection($this->getMongoCollection());
 
             $document = $this->_router->objectToArray($this);
@@ -200,8 +213,6 @@ trait MongoDB {
         }
 
         return $this;
-
-        // TODO: Implement save() method.
     }
 
 

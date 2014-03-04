@@ -34,6 +34,8 @@ The are HTTP errors. They probably don't need logged separately, as default logg
 -  803004 Failed to save Document
 -  803050 Invalid Query
 -  803901 Could not connect to DB
+-  803902 No connection registered for DB
+
 
 
 ## 808xxx

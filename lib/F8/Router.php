@@ -17,11 +17,13 @@ abstract class Router {
     public $rawurlnoquery;		// The raw url with the query string removed.
     public $is_post = false;
 
+    /** @var \Psr\Log\AbstractLogger */
     public $logger;             // A PSR-3 compatible logger (Required)
     public $viewSwitch;         // The ViewSwitch for handling different view types
 
+    /** @var \F8\ErrorFactory */
     public $messageFactory;     // The messageFactory for creating new messages (dangers, warnings, successes, infos)
-    public $connection;         // A db connection, most likely MongoDB (Optional)
+    public $connections = [];         // A db connection, most likely MongoDB (Optional)
 
     public $debug = 0;          // 0 = none, 1 = critical, 2 = info
 
@@ -35,7 +37,12 @@ abstract class Router {
 
     protected $appNamespace = 'App';
 
-    abstract public function getConnection(&$errors);
+    /**
+     * @param string $name The name of the db. Generally, something like "mongo"
+     * @param mixed[] $errors
+     * @return mixed
+     */
+    abstract public function getConnection($name, &$errors);
 
     public function __construct(\Psr\Log\LoggerInterface $logger, \F8\ViewSwitch $viewSwitch){
         session_start();
@@ -197,7 +204,7 @@ abstract class Router {
      * to prepare objects for insertion into MongoDB. (MongoDB will throw an error if objects have private or protected
      * properties.)
      *
-     * @param $object
+     * @param \stdClass $object
      * @return array
      */
     public function objectToArray( $object ) {
@@ -205,9 +212,11 @@ abstract class Router {
             return $object;
         }
         if( is_object( $object ) ) {
+            /** @var \stdClass $object */
             if (strpos(get_class($object), 'Mongo') === 0) return $object;
             $object = get_object_vars($object);
         }
+        /** @var array $object */
         return array_map( array( $this, 'objectToArray'), $object );
     }
 
