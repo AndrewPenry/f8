@@ -35,7 +35,7 @@ trait MongoDB {
     {
         $options = array_merge([
                 'fit_strict' => false,
-                'query' => [],
+                'query' => $this->_router->objectToArray($this, true),
                 'fields' => [],
                 'limit' => false,
                 'sort' => [],

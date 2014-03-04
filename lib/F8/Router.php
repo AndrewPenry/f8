@@ -35,6 +35,8 @@ abstract class Router {
     public $successes = [];
     public $infos = [];
 
+    public $isConsole = false;
+
     protected $appNamespace = 'App';
 
     /**
@@ -45,15 +47,27 @@ abstract class Router {
     abstract public function getConnection($name, &$errors);
 
     public function __construct(\Psr\Log\LoggerInterface $logger, \F8\ViewSwitch $viewSwitch){
+        if (php_sapi_name() == 'cli') {
+            $this->isConsole = true;
+            global $argv;
+        }
         session_start();
+
         $this->logger = $logger;
         $this->viewSwitch = $viewSwitch;
         $this->messageFactory = new \F8\ErrorFactory($this, '\F8\Error');
 
-        $this->rawurl = $_SERVER['REQUEST_URI'];
+        if ($this->isConsole) {
+            if(!empty($argv[1])) {
+                $this->rawurl = $argv[1];
+            } else {
+                $this->rawurl = '/index/console_default';
+            }
+        } else {
+            $this->rawurl = $_SERVER['REQUEST_URI'];
+            if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST)) $this->is_post = true;
+        }
         $this->rawurlnoquery = strpos($this->rawurl, '?') === false ? $this->rawurl : substr($this->rawurl, 0, strpos($this->rawurl, '?'));
-
-        if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST)) $this->is_post = true;
 
         if (!empty($_SESSION['f8_statusArray'])) {
             list($this->dangers, $this->warnings, $this->successes, $this->infos) = $_SESSION['f8_statusArray'];
@@ -207,7 +221,7 @@ abstract class Router {
      * @param \stdClass $object
      * @return array
      */
-    public function objectToArray( $object ) {
+    public function objectToArray( $object , $filterNull = false) {
         if( !is_object( $object ) && !is_array( $object ) ) {
             return $object;
         }
@@ -217,7 +231,24 @@ abstract class Router {
             $object = get_object_vars($object);
         }
         /** @var array $object */
-        return array_map( array( $this, 'objectToArray'), $object );
+        if ($filterNull) {
+            $a =  array_map( array( $this, 'objectToArray'), $object );
+            return $this->array_filter_null_recursive($a);
+        } else {
+            return array_map( array( $this, 'objectToArray'), $object );
+        }
+    }
+
+    public function array_filter_null_recursive($input)
+    {
+        foreach ($input as &$value)
+        {
+            if (is_array($value))
+            {
+                $value = $this->array_filter_null_recursive($value);
+            }
+        }
+        return array_filter($input, function($v) {return !is_null($v);});
     }
 
     public function danger($message, $code = 809000, $extra = array()){
