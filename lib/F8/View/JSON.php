@@ -18,7 +18,9 @@ class JSON extends \F8\View {
     public function render(Router $router, $data, &$errors)
     {
         // TODO: Implement render() method.
-        header('Content-type: application/json');
+        if (!$router->isConsole) {
+            header('Content-type: application/json');
+        }
         if ($this->pretty) {
             echo json_encode($data, JSON_PRETTY_PRINT);
         } else {
