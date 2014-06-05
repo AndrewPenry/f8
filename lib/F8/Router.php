@@ -162,7 +162,7 @@ abstract class Router {
         if (!is_array($errors)) $errors = array();
 
         if (!class_exists($this->appNamespace.'\\Controller\\'.$this->uc_controller, true)) {
-            $errors[] = array('code'=>'1000', 'message'=>sprintf(\_('%s not found.'), $this->uc_controller));
+            $errors[] = array('code'=>'1000', 'message'=>sprintf(_('%s not found.'), $this->uc_controller));
             $this->controller = 'index';
             $this->uc_controller = 'Index';
             $this->action = '_404';
@@ -170,7 +170,7 @@ abstract class Router {
             return $this;
         }
         if (!is_subclass_of($this->appNamespace.'\\Controller\\'.$this->uc_controller, 'F8\\Controller')) {
-            $errors[] = array('code'=>'1001', 'message'=>sprintf(\_('%s is not a controller.'), $this->uc_controller));
+            $errors[] = array('code'=>'1001', 'message'=>sprintf(_('%s is not a controller.'), $this->uc_controller));
             $this->controller = 'index';
             $this->uc_controller = 'Index';
             $this->action = '_404';
@@ -178,7 +178,7 @@ abstract class Router {
             return $this;
         }
         if (!is_callable(array($this->appNamespace.'\\Controller\\'.$this->uc_controller, $this->action))) {
-            $errors[] = array('code'=>'1002', 'message'=>sprintf(\_('%s action does not exist.'), $this->action));
+            $errors[] = array('code'=>'1002', 'message'=>sprintf(_('%s action does not exist.'), $this->action));
             if (is_callable(array($this->appNamespace.'\\Controller\\'.$this->uc_controller, '_404'))) {
                 // This controller has its own 404 error handling.
                 $this->action = '_404';
