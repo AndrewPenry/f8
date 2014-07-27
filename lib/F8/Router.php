@@ -196,7 +196,7 @@ abstract class Router {
 
     public function followRoute(& $errors){
         $cName = $this->appNamespace.'\\Controller\\'.$this->uc_controller;
-        $c = new $cName();
+        $c = new $cName($this);
         $a = $this->action;
         return $c->$a($this);
     }
