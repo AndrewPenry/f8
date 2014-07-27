@@ -38,9 +38,11 @@ class Twig extends \F8\View {
             echo $template->render($data);
             return true;
         } catch (\Twig_Error_Loader $e) {
+            $errors[] = $router->messageFactory->message("Twig template not found", 809000, ['path'=>$path, 'exception'=>$e->getMessage()]);
             $router->logger->debug("Twig template not found", ['path'=>$path, 'exception'=>$e->getMessage()]);
             return false;
         } catch (\Exception $e) {
+            $errors[] = $router->messageFactory->message("Twig template rendering failed", 809000, ['path'=>$path, 'exception'=>$e->getMessage()]);
             $router->logger->critical("Twig template rendering failed", ['path'=>$path, 'exception'=>$e->getMessage()]);
             return false;
         }
