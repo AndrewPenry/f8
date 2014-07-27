@@ -26,7 +26,7 @@ The are HTTP errors. They probably don't need logged separately, as default logg
 
 ## 803xxx
 
-803 errors are general DB and Docuement errors
+803 errors are general DB and Document errors
 
 -  803001 Document not found
 -  803002 Failed to insert Document
