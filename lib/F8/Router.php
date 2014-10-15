@@ -51,7 +51,7 @@ abstract class Router {
             $this->isConsole = true;
             global $argv;
         }
-        session_start();
+        if (!session_id()) session_start();
 
         $this->logger = $logger;
         $this->viewSwitch = $viewSwitch;
