@@ -216,7 +216,8 @@ abstract class Router {
     /**
      * This converts only public methods of an object into an associative array. It does so recursively and is suitable
      * to prepare objects for insertion into MongoDB. (MongoDB will throw an error if objects have private or protected
-     * properties.)
+     * properties.) It will also destroy values with empty keys, a needed step for MongoDB. If you do not wish to destroy
+     * the empty keys, then you will need to override this function in your router.
      *
      * @param \stdClass $object
      * @return array
@@ -231,11 +232,13 @@ abstract class Router {
             $object = get_object_vars($object);
         }
         /** @var array $object */
+        $a =  array_map( array( $this, 'objectToArray'), $object );
+        $this->array_destroy_empty_key_recursive($a);
+
         if ($filterNull) {
-            $a =  array_map( array( $this, 'objectToArray'), $object );
             return $this->array_filter_null_recursive($a);
         } else {
-            return array_map( array( $this, 'objectToArray'), $object );
+            return $a;
         }
     }
 
@@ -250,6 +253,22 @@ abstract class Router {
         }
         return array_filter($input, function($v) {return !is_null($v);});
     }
+
+    public function array_destroy_empty_key_recursive(&$input)
+    {
+        foreach ($input as $key => &$value)
+        {
+            if ($key === "") {
+                unset ($input[$key]);
+            }
+            if (is_array($value))
+            {
+                $this->array_destroy_empty_key_recursive($value);
+            }
+        }
+        return;
+    }
+
 
     public function danger($message, $code = 809000, $extra = array()){
         $this->dangers[] = $this->messageFactory->message($message, $code, $extra);

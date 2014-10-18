@@ -88,10 +88,11 @@ abstract class Document {
      *
      * @param array $options
      * @param array $errors
+     * @param int $count Some trait implementations will be able to return total count by setting this variable
      * @param mixed $db
      * @return Document[]
      */
-    abstract public function search($options, &$errors, $db = null);
+    abstract public function search($options, &$errors, &$count = null, $db = null);
 
     /**
      * For creating a document

@@ -28,18 +28,24 @@ trait MongoDB {
      *
      * @param array $options
      * @param array $errors
+     * @param int $count
      * @param \MongoDB $db
      * @return Document[]
      */
-    public function search($options, &$errors, $db = null)
+    public function search($options, &$errors, &$count = null, $db = null)
     {
         $options = array_merge([
                 'fit_strict' => false,
-                'query' => $this->_router->objectToArray($this, true),
                 'fields' => [],
-                'limit' => false,
+                'limit' => 0,
                 'sort' => [],
+                'skip' => 0,
             ], $options);
+
+        // This is not just part of the default options because it could be a slow function. If the query is passed in, then there is no point running it, just to be overridden.
+        if (!isset($options['query'])) {
+            $options['query'] = $this->_router->objectToArray($this, true);
+        }
 
         /** @var \F8\Router $r */
         $r = $this->_router;
@@ -51,9 +57,14 @@ trait MongoDB {
         if ($options['sort']) {
             $cursor->sort($options['sort']);
         }
-        if ($options['limit'] !== false) {
-            $cursor->limit($options['limit']);
+        if ((int) $options['limit'] > 0) {
+            $cursor->limit((int) $options['limit']);
         }
+        if ((int) $options['skip'] > 0) {
+            $cursor->skip((int) $options['skip']);
+        }
+
+        $count = $cursor->count();
 
         $objects = [];
         foreach ($cursor as $document) {
@@ -197,7 +208,6 @@ trait MongoDB {
             $collection = $db->selectCollection($this->getMongoCollection());
 
             $document = $this->_router->objectToArray($this);
-
             if (is_null($document['_id'])){
                 unset($document['_id']);
             }

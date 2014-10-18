@@ -19,6 +19,10 @@ class Twig extends \F8\View {
 
     }
 
+    public function getEnvironment () {
+        return $this->twig;
+    }
+
     /**
      * Renders the output. Should end up echoing or otherwise transmitting data.
      *
