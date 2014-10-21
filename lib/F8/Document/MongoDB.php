@@ -225,6 +225,14 @@ trait MongoDB {
         return $this;
     }
 
+    public function expandMongoRef($paramName, $className, $readOptions, &$errors, $db = null) {
+        $param = $this->$paramName;
+        $object = new $className($this->_router);
+        $object->_id = $param["_id"];
+        $object->read($readOptions, $errors, $db);
+        $this->$paramName = $object;
+        return $this;
+    }
 
 
 }
