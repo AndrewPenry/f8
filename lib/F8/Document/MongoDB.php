@@ -219,7 +219,7 @@ trait MongoDB {
             }
         } catch (\MongoException $e) {
             $r->logger->error('Mongo Exception', ['exception' => $e->getMessage()]);
-            $errors[] = $r->messageFactory->message(_("Document could not be saved"), 803004, array('document-type'=>get_class($this)));
+            $errors[] = $r->messageFactory->message(_("Document could not be saved"), 803004, array('document-type'=>get_class($this), 'mongoException' => $e));
         }
 
         return $this;

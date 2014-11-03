@@ -38,6 +38,7 @@ abstract class Router {
     public $isConsole = false;
 
     protected $appNamespace = 'App';
+    protected $_rerouting = false;
 
     /**
      * @param string $name The name of the db. Generally, something like "mongo"
@@ -89,7 +90,15 @@ abstract class Router {
     public function go() {
         $this->parseRoute($this->rawurlnoquery)->verifyRoute($errors);
         $data = $this->followRoute($errors);
-        $this->viewSwitch->go($this, $data, $errors);
+        if (!$this->_rerouting) $this->viewSwitch->go($this, $data, $errors);
+    }
+
+    public function reroute($url){
+        $this->parseRoute($url)->verifyRoute($errors);
+        $data = $this->followRoute($errors);
+        if (!$this->_rerouting) $this->viewSwitch->go($this, $data, $errors);
+        $this->_rerouting = true;
+        return [];
     }
 
     public function parseRoute($url) {
