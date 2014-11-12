@@ -234,5 +234,10 @@ trait MongoDB {
         return $this;
     }
 
+    public function collapseMongoRef($paramName) {
+        $this->$paramName = ["_id" => $this->$paramName->_id];
+        return $this;
+    }
+
 
 }
