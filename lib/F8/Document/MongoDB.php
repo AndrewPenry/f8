@@ -194,7 +194,7 @@ trait MongoDB {
      * MongoDB has a save function that checks to see if the _id is set
      *
      * @param array $options
-     * @param array $errors
+     * @param \F8\Error[] $errors
      * @param \MongoDB $db
      * @return Document
      */
@@ -237,6 +237,22 @@ trait MongoDB {
     public function collapseMongoRef($paramName) {
         $this->$paramName = ["_id" => $this->$paramName->_id];
         return $this;
+    }
+
+    public function exists($options, &$errors, $db = null)
+    {
+        $options = array_merge([
+            'query' => ["_id"=>$this->_id],
+        ], $options);
+
+        /** @var \F8\Router $r */
+        $r = $this->_router;
+        /** @var \MongoDB $db */
+        if (is_null($db)) $db = $r->getConnection('mongo', $errors);
+        $collection = $db->selectCollection($this->getMongoCollection());
+
+        $cursor = $collection->find($options['query'])->limit(1);
+        return (boolean) $cursor->count(true);
     }
 
 
