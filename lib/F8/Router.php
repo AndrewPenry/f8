@@ -222,6 +222,12 @@ abstract class Router {
         return $url;
     }
 
+    public function makeAbsoluteURL($controller, $action, array $vars, $seo = "") {
+        $url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://".$_SERVER['HTTP_HOST'];
+        $url .= $this->makeRelativeURL($controller, $action, $vars, $seo);
+        return $url;
+    }
+
     /**
      * This converts only public methods of an object into an associative array. It does so recursively and is suitable
      * to prepare objects for insertion into MongoDB. (MongoDB will throw an error if objects have private or protected

@@ -212,7 +212,7 @@ trait MongoDB {
                 unset($document['_id']);
             }
 
-            if ($collection->save($document)) {
+            if ($collection->save($document, $options)) {
                 $this->_id = $document['_id'];
             } else {
                 $errors[] = $r->messageFactory->message(_("Document could not be saved"), 803004, array('document-type'=>get_class($this)));
