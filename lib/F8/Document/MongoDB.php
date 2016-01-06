@@ -126,6 +126,7 @@ trait MongoDB {
                 'fit_strict' => false,
                 'query' => ["_id"=>$this->_id],
                 'fields' => [],
+                'class_field' => null,
             ], $options);
 
         /** @var \F8\Router $r */
@@ -138,6 +139,14 @@ trait MongoDB {
         if (is_null($document)) {
             $errors[] = $r->messageFactory->message(_("Document Not Found"), 803001, array('document-type'=>get_class($this)));
         } else {
+            if ($options['class_field'] && $c = @$document[$options['class_field']]) {
+                if (class_exists($c)) {
+                    $new = new $c($this->_router);
+                    $new->fit($document, $options['fit_strict']);
+                    return $new;
+                }
+            }
+
             $this->fit($document, $options['fit_strict']);
         }
 
@@ -228,8 +237,10 @@ trait MongoDB {
     public function expandMongoRef($paramName, $className, $readOptions, &$errors, $db = null) {
         $param = $this->$paramName;
         $object = new $className($this->_router);
-        $object->_id = $param["_id"];
-        $object->read($readOptions, $errors, $db);
+        if (!empty($param["_id"])) {
+            $object->_id = $param["_id"];
+            $object->read($readOptions, $errors, $db);
+        }
         $this->$paramName = $object;
         return $this;
     }
