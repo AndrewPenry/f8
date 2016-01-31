@@ -162,6 +162,10 @@ abstract class Router {
         }
     }
 
+    function setVar($var, $value) {
+        $this->vars[$var] = $value;
+    }
+
 
     /**
      * @param array $errors
