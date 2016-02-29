@@ -105,7 +105,7 @@ trait MongoDB {
                 $errors[] = $r->messageFactory->message(_("Document could not be created"), 803002, array('document-type'=>get_class($this)));
             }
         } catch (\MongoException $e) {
-            $r->logger->error('Mongo Exception', ['exception' => $e->getMessage()]);
+            $r->logger->error('Mongo Exception', ['exception' => $e->getMessage(), 'code' => $e->getCode()]);
             $errors[] = $r->messageFactory->message(_("Document could not be created"), 803002, array('document-type'=>get_class($this)));
         }
 
@@ -227,7 +227,7 @@ trait MongoDB {
                 $errors[] = $r->messageFactory->message(_("Document could not be saved"), 803004, array('document-type'=>get_class($this)));
             }
         } catch (\MongoException $e) {
-            $r->logger->error('Mongo Exception', ['exception' => $e->getMessage()]);
+            $r->logger->error('Mongo Exception', ['exception' => $e->getMessage(), 'code' => $e->getCode()]);
             $errors[] = $r->messageFactory->message(_("Document could not be saved"), 803004, array('document-type'=>get_class($this), 'mongoException' => $e));
         }
 
