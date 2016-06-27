@@ -12,6 +12,7 @@ abstract class Router {
     public $action;
     public $vars = array();
     public $seo;
+    public $word_separator = '-';
 
     public $rawurl;				// The raw url from the request uri (includes query)
     public $rawurlnoquery;		// The raw url with the query string removed.
@@ -131,7 +132,7 @@ abstract class Router {
         if (empty($this->controller)) $this->controller = 'index';
         if (empty($this->action)) $this->action = 'view';
 
-        $this->uc_controller = ucfirst($this->controller);
+        $this->uc_controller = str_replace($this->word_separator, '', ucwords($this->controller, $this->word_separator));
 
         return $this;
     }
