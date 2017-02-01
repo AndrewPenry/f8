@@ -6,7 +6,7 @@ use MongoDB\BSON\UTCDateTime;
 use MongoDB\Client;
 use MongoDB\Model\BSONDocument;
 
-class MongoDB7
+class MongoDB7 implements DBInterface
 {
 
     private $_client;
@@ -20,8 +20,9 @@ class MongoDB7
 
     public $strict = false;
 
-    public function __construct(string $dbName, $uri = 'mongodb://127.0.0.1/', array $uriOptions = [], array $driverOptions = [])
+    public function __construct(string $dbName, string $uri = 'mongodb://127.0.0.1/', array $uriOptions = [], array $driverOptions = [])
     {
+
         $driverOptions += ['typeMap' => self::$defaultTypeMap];
 
         $this->_client = new Client($uri, $uriOptions, $driverOptions);
@@ -32,6 +33,11 @@ class MongoDB7
         return $this->_client;
     }
 
+    public function db()
+    {
+        return $this->_db;
+    }
+
     /**
      * Inserts a new document into the collection
      *
@@ -40,7 +46,7 @@ class MongoDB7
      * @param bool|null $strict
      * @return bool
      */
-    public function create(string $collectionName, $document, bool $strict = null) {
+    public function create(string $collectionName, $document, bool $strict = null):bool {
         $collection = $this->_db->selectCollection($collectionName);
         $document->_id = self::id($document->_id);
 
@@ -59,12 +65,11 @@ class MongoDB7
      * @param bool|null $strict
      * @return bool
      */
-    public function read(string $collectionName, $document, bool $strict = null) {
+    public function read(string $collectionName, $document, bool $strict = null):bool {
         $collection = $this->_db->selectCollection($collectionName);
 
-        $query = ['_id' => $document->_id];
+        $query = ['_id' => self::id($document->_id)];
 
-        /** @var BSONDocument $result */
         $result = $collection->findOne($query);
         if ($result) {
             self::fit($document, $result, $strict ?? $this->strict);
@@ -75,7 +80,7 @@ class MongoDB7
     }
 
     /**
-     * Updates only those fields in document that are in the fields list.
+     * Updates only those fields in document that are in the fields list. Updates by _id
      *
      * @param string $collectionName
      * @param object $document
@@ -83,7 +88,7 @@ class MongoDB7
      * @param bool|null $strict
      * @return bool
      */
-    public function update(string $collectionName, $document, array $fields, bool $strict = null) {
+    public function update(string $collectionName, $document, array $fields, bool $strict = null):bool {
         $strict = $strict ?? $this->strict;
 
         $collection = $this->_db->selectCollection($collectionName);
@@ -132,16 +137,16 @@ class MongoDB7
      * @param object $document
      * @return bool
      */
-    public function delete(string $collectionName, $document) {
+    public function delete(string $collectionName, $document):bool {
         $collection = $this->_db->selectCollection($collectionName);
         $query = ['_id' => self::id($document->_id)];
-        $collection->deleteOne($query);
-        return true;
+        $result = $collection->deleteOne($query);
+        return (bool) $result->getDeletedCount();
     }
 
 
     /**
-     * Packs data from a BSON document into an object
+     * Packs data from a result array into an object
      *
      * If strict is set to true, the key must match a public property of the Document. Doing so is slower (due to
      * reflection), so it is only recommended during debugging and development.

@@ -9,7 +9,7 @@
 namespace F8\Service;
 
 
-interface DB
+interface DBInterface
 {
 
     public function __construct(string $dbName, string $uri, array $uriOptions, array $driverOptions);
