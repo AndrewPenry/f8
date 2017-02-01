@@ -51,6 +51,7 @@ class MySQLDB implements DBInterface
      * @return bool
      */
     public function create(string $collectionName, $document, bool $strict = null):bool {
+        // @todo Implement MySQLDB::create
         return false;
     }
 
@@ -63,6 +64,7 @@ class MySQLDB implements DBInterface
      * @return bool
      */
     public function read(string $collectionName, $document, bool $strict = null):bool {
+        // @todo Implement MySQLDB::read
         return false;
     }
 
@@ -76,6 +78,7 @@ class MySQLDB implements DBInterface
      * @return bool
      */
     public function update(string $collectionName, $document, array $fields, bool $strict = null):bool {
+        // @todo Implement MySQLDB::update
         return false;
     }
 
@@ -87,6 +90,7 @@ class MySQLDB implements DBInterface
      * @return bool
      */
     public function delete(string $collectionName, $document):bool {
+        // @todo Implement MySQLDB::delete
         return false;
     }
 
@@ -98,11 +102,12 @@ class MySQLDB implements DBInterface
      * reflection), so it is only recommended during debugging and development.
      *
      * @param object $document
-     * @param array|BSONDocument $result
+     * @param array $result
      * @param bool $strict
      * @return \stdClass $document
      */
     static public function fit( $document, $result, bool $strict) {
+        // @todo Implement MySQLDB::fit
         return null;
     }
 
@@ -118,6 +123,7 @@ class MySQLDB implements DBInterface
      */
 
     static public function unfit($document, bool $strict): array {
+        // @todo Implement MySQLDB::unfit
         return null;
     }
 
