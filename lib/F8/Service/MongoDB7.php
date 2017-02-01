@@ -29,14 +29,9 @@ class MongoDB7 implements DBInterface
         $this->_db = $this->_client->selectDatabase($dbName);
     }
 
-    public function client(){
-        return $this->_client;
-    }
+    public function client() { return $this->_client; }
 
-    public function db()
-    {
-        return $this->_db;
-    }
+    public function db() { return $this->_db; }
 
     /**
      * Inserts a new document into the collection
