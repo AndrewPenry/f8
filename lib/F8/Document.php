@@ -19,111 +19,52 @@ namespace F8;
 abstract class Document {
 
     protected $_router;
-    protected $_fit_errors = array();
 
-    public function __construct(Router $router){
-        $this->_router = $router;
+    public function __construct(){
+        $this->_router = Locator::getInstance()->locate('router', 'app');
     }
-
-    /**
-     * Packs data from an associative array source into the document.
-     * Does not handle setting object types or anything fancy. That should be implemented by overriding this function.
-     *
-     * If strict is set to true, the key must match a public property of the Document. Doing so is slow (due to
-     * reflection), so it is only recommended during debugging and development.
-     *
-     * @param array $array
-     * @param bool $strict
-     * @return $this
-     */
-    public function fit($array = array(), $strict = false){
-        if (empty($array)) {
-            if ($this->_router->debug == 2) $this->_router->logger->info(_("Document was empty when attempting a fit"), array("document_type"=>get_class($this)));
-            return $this;
-        }
-
-        $props = array();
-        if ($strict) {
-            $reflection = new \ReflectionClass($this);
-            $r_props = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
-            foreach ($r_props as $p) {
-                $props[] = $p->getName();
-            }
-            if ($this->_router->debug == 2) $this->_router->logger->info(_("Using Strict Fit"), array("document_type"=>get_class($this)));
-        }
-
-        foreach ($array as $key => $value){
-            if ($strict) {
-                if (!in_array($key, $props)) {
-                    $this->_fit_errors[] = new Error($this->_router, sprintf(_("%s does not exist in Model Document"), $key), 803006, array("document_type"=>get_class($this)) );
-                    continue;
-                }
-            }
-            $this->$key = $value;
-        }
-
-        return $this;
-
-    }
-
-    /**
-     * Get the array of fit errors from the last call of fit.
-     *
-     * @return \F8\Error[]
-     */
-    public function getFitErrors(){
-        return $this->_fit_errors;
-    }
-
-    /**
-     * Clear the Fit Errors array.
-     */
-    public function clearFitErrors(){
-        $this->_fit_errors = array();
-    }
-
 
     /**
      * For finding more than one document
      *
      * @param array $options
-     * @param array $errors
+     * @param \F8\Error[] $errors
      * @param int $count Some trait implementations will be able to return total count by setting this variable
      * @param mixed $db
      * @return Document[]
      */
-    abstract public function search($options, &$errors, &$count = null, $db = null);
+    abstract public function search(array $options = [], &$errors = [], &$count = null, $db = null);
 
     /**
      * For creating a document
      *
      * @param array $options
-     * @param array $errors
+     * @param \F8\Error[] $errors
      * @param mixed $db
      * @return Document
      */
-    abstract public function create($options, &$errors, $db = null);
+    abstract public function create(array $options = [], &$errors = [], $db = null);
 
     /**
      * For reading one document
      *
      * @param array $options
-     * @param array $errors
+     * @param \F8\Error[] $errors
      * @param mixed $db
      * @return Document
      */
-    abstract public function read($options, &$errors, $db = null);
+    abstract public function read(array $options = [], &$errors = [], $db = null);
 
     /**
      * For updating one document
      * Most commonly, it will be the current document.
      *
      * @param array $options
-     * @param array $errors
+     * @param \F8\Error[] $errors
      * @param mixed $db
      * @return Document
      */
-    abstract public function update($options, &$errors, $db = null);
+    abstract public function update(array $options = [], &$errors = [], $db = null);
 
     /**
      * For deleting one document.
@@ -134,11 +75,11 @@ abstract class Document {
      * This should probably delete document 7. However, one could implement it so that the id must be passed in the options array.
      *
      * @param array $options
-     * @param array $errors
+     * @param \F8\Error[] $errors
      * @param mixed $db
      * @return boolean
      */
-    abstract public function delete($options, &$errors, $db = null);
+    abstract public function delete(array $options = [], &$errors = [], $db = null);
 
 
     /**
@@ -149,10 +90,10 @@ abstract class Document {
      * MongoDB has a save function that checks to see if the _id is set
      *
      * @param array $options
-     * @param array $errors
+     * @param \F8\Error[] $errors
      * @param mixed $db
      * @return Document
      */
-    abstract public function save($options, &$errors, $db = null);
+    abstract public function save(array $options = [], &$errors = [], $db = null);
 
 }

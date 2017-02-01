@@ -11,8 +11,6 @@ use F8\Locator;
  *
  * This trait should be applied to classes that extend \F8\Document.
  * It is a default implementation of the abstract methods found in \F8\Document.
- *
- * @property \F8\Router $_router;
  */
 trait MongoDB7 {
 
@@ -49,7 +47,7 @@ trait MongoDB7 {
      * @param \MongoDB $db
      * @return Document[]
      */
-    public function search($options, &$errors, &$count = null, $db = null)
+    public function search(array $options = [], &$errors = [], &$count = null, $db = null)
     {
         $locator = Locator::getInstance();
         /** @var \F8\Service\MongoDB7 $db */
@@ -74,7 +72,7 @@ trait MongoDB7 {
             foreach ($cursor as $result) {
                 if (isset($options['class_field']) && $c = @$result[$options['class_field']]) {
                     if (class_exists($c)) {
-                        $new = new $c($this->_router);
+                        $new = new $c();
                         \F8\Service\MongoDB7::fit($new, $result, $options['fit_strict'] ?? $db->strict);
                         $objects[] = $new;
                     }
@@ -150,7 +148,7 @@ trait MongoDB7 {
      * @param \F8\Service\MongoDB7 $db
      * @return Document
      */
-    public function read($options, &$errors = [], $db = null)
+    public function read(array $options = [], &$errors = [], $db = null)
     {
         $locator = Locator::getInstance();
         /** @var \F8\Service\MongoDB7 $db */
@@ -182,7 +180,7 @@ trait MongoDB7 {
             if ($result) {
                 if (isset($options['class_field']) && $c = @$result[$options['class_field']]) {
                     if (class_exists($c)) {
-                        $new = new $c($this->_router);
+                        $new = new $c();
                         \F8\Service\MongoDB7::fit($new, $result, $options['fit_strict'] ?? $db->strict);
                         return $new;
                     }
@@ -212,7 +210,7 @@ trait MongoDB7 {
      * @param \MongoDB $db
      * @return Document
      */
-    public function update($options, &$errors, $db = null)
+    public function update(array $options = [], &$errors = [], $db = null)
     {
         // TODO: Implement update() method.
         /** @var Document $this */
@@ -231,7 +229,7 @@ trait MongoDB7 {
      * @param \F8\Service\MongoDB7 $db
      * @return bool
      */
-    public function delete($options, &$errors, $db = null)
+    public function delete(array $options = [], &$errors = [], $db = null)
     {
         $locator = Locator::getInstance();
         /** @var \F8\Service\MongoDB7 $db */
@@ -287,7 +285,7 @@ trait MongoDB7 {
      * @param \F8\Service\MongoDB7 $db
      * @return Document
      */
-    public function save($options, &$errors, $db = null)
+    public function save(array $options = [], &$errors = [], $db = null)
     {
         if (is_null($this->_id)) {
             return $this->create($options, $errors, $db);
@@ -345,7 +343,7 @@ trait MongoDB7 {
     public function expandRef(string $paramName, string $className, array $readOptions, &$errors, $db = null) {
         $param = $this->$paramName;
         /** @var MongoDB7 $object */
-        $object = new $className($this->_router);
+        $object = new $className();
         if (!empty($param["_id"])) {
             $object->_id = $param["_id"];
             $object->read($readOptions, $errors, $db);
@@ -378,7 +376,7 @@ trait MongoDB7 {
      * @param null $db
      * @return bool
      */
-    public function exists($options, &$errors, $db = null)
+    public function exists(array $options = [], &$errors = [], $db = null)
     {
         // Non-Empty Options = Custom Read and Fit
         $options = array_merge([

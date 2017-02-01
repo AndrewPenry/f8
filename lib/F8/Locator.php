@@ -50,4 +50,8 @@ class Locator
         return $this->_services['db'][$name] ?? $this->_services['db']['null'];
     }
 
+    public function router($name): Router {
+        return $this->_services['router'][$name] ?? $this->_services['router']['null'] ?? null;
+    }
+
 }

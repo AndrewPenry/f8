@@ -57,7 +57,7 @@ abstract class Router {
 
         $this->logger = $logger;
         $this->viewSwitch = $viewSwitch;
-        $this->messageFactory = new \F8\ErrorFactory($this, '\F8\Error');
+        $this->messageFactory = new \F8\ErrorFactory('\F8\Error');
 
         if ($this->isConsole) {
             if(!empty($argv[1])) {
