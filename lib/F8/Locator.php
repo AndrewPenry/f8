@@ -10,7 +10,7 @@ class Locator
 {
 
     private static $_instance;
-    private $_services = [];
+    protected $_services = [];
 
     // This makes it a Singleton!
     private function __construct() {
@@ -50,6 +50,10 @@ class Locator
         return $this->_services['db'][$name] ?? $this->_services['db']['null'];
     }
 
+    /**
+     * @param $name
+     * @return Router
+     */
     public function router($name): Router {
         return $this->_services['router'][$name] ?? $this->_services['router']['null'] ?? null;
     }
