@@ -43,7 +43,7 @@ class Locator
      * @param $name
      * @return LoggerInterface
      */
-    public function logger($name): LoggerInterface {
+    public function logger(string $name): LoggerInterface {
         return $this->_services['logger'][$name] ?? $this->_services['logger']['null'];
     }
 
@@ -51,7 +51,7 @@ class Locator
      * @param $name
      * @return DBInterface
      */
-    public function db($name): DBInterface {
+    public function db(string $name): DBInterface {
         return $this->_services['db'][$name] ?? $this->_services['db']['null'];
     }
 
@@ -59,7 +59,7 @@ class Locator
      * @param $name
      * @return Router
      */
-    public function router($name): Router {
+    public function router(string $name) {
         return $this->_services['router'][$name] ?? $this->_services['router']['null'] ?? null;
     }
 
