@@ -302,12 +302,11 @@ trait MongoDB7 {
 
             $collection = $db->db()->selectCollection($this->getMongoCollection());
             $array = \F8\Service\MongoDB7::unfit($this, $options['fit_strict'] ?? $db->strict);
+            $this->_id = \F8\Service\MongoDB7::id($this->_id);
             $result = $collection->replaceOne($options['query'], $array, $driverOptions);
             if ($result->getUpsertedCount()) {
-                $this->_id = $result->getUpsertedId();
                 return $this;
             }
-
             if ($result->getModifiedCount()) {
                 return $this;
             } else {
