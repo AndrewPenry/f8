@@ -9,11 +9,11 @@ use Psr\Log\NullLogger;
 class Locator
 {
 
-    private static $_instance;
+    protected static $_instance;
     protected $_services = [];
 
     // This makes it a Singleton!
-    private function __construct() {
+    protected function __construct() {
         $this->_services['db']['null'] = new NullDB();
         $this->_services['logger']['null'] = new NullLogger();
 
