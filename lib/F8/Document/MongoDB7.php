@@ -4,6 +4,7 @@ namespace F8\Document;
 use F8\Document;
 use F8\ErrorFactory;
 use F8\Locator;
+use MongoDB\Exception\Exception;
 
 /**
  * Trait MongoDB7
@@ -44,13 +45,12 @@ trait MongoDB7 {
      * @param array $options
      * @param \F8\Error[] $errors
      * @param int $count
-     * @param \MongoDB $db
+     * @param \F8\Service\MongoDB7 $db
      * @return Document[]
      */
     public function search(array $options = [], &$errors = [], &$count = null, $db = null)
     {
         $locator = Locator::getInstance();
-        /** @var \F8\Service\MongoDB7 $db */
         $db = $db ?? $locator->db('mongo');
 
         // This is not just part of the default options because it could be a slow function.
@@ -102,7 +102,7 @@ trait MongoDB7 {
      * @param array $options
      * @param \F8\Error[] $errors
      * @param \F8\Service\MongoDB7 $db
-     * @return Document
+     * @return $this
      */
     public function create(array $options = [], &$errors = [], $db = null)
     {
@@ -120,7 +120,6 @@ trait MongoDB7 {
             $errors[] = $mf->message(_("Document could not be created"), 803002, array('document-type'=>get_class($this)));
         }
 
-        /** @var Document $this */
         return $this;
     }
 
@@ -146,7 +145,7 @@ trait MongoDB7 {
      * @param array $options
      * @param \F8\Error[] $errors
      * @param \F8\Service\MongoDB7 $db
-     * @return Document
+     * @return $this
      */
     public function read(array $options = [], &$errors = [], $db = null)
     {
@@ -163,7 +162,6 @@ trait MongoDB7 {
                     if ($db->read($this->getMongoCollection(), $this) === false) {
                         $errors[] = $mf->message(_("Document Not Found"), 803001, array('document-type'=>get_class($this)));
                     }
-                /** @var Document $this */
                 return $this;
             }
 
@@ -189,14 +187,12 @@ trait MongoDB7 {
             } else {
                 $errors[] = $mf->message(_("Document Not Found"), 803001, array('document-type'=>get_class($this)));
             }
-            /** @var Document $this */
             return $this;
 
         } catch (\Exception $e) {
             echo $e->getMessage();
             $locator->logger('f8')->error('Mongo Exception', ['exception' => $e->getMessage(), 'code' => $e->getCode()]);
             $errors[] = $mf->message(_("Document Not Found"), 803001, array('document-type'=>get_class($this)));
-            /** @var Document $this */
             return $this;
         }
     }
@@ -207,13 +203,12 @@ trait MongoDB7 {
      *
      * @param array $options
      * @param \F8\Error[] $errors
-     * @param \MongoDB $db
-     * @return Document
+     * @param \F8\Service\MongoDB7 $db
+     * @return $this
      */
     public function update(array $options = [], &$errors = [], $db = null)
     {
         // TODO: Implement update() method.
-        /** @var Document $this */
         return $this;
     }
 
@@ -283,7 +278,7 @@ trait MongoDB7 {
      * @param array $options
      * @param \F8\Error[] $errors
      * @param \F8\Service\MongoDB7 $db
-     * @return Document
+     * @return $this
      */
     public function save(array $options = [], &$errors = [], $db = null)
     {
@@ -298,7 +293,7 @@ trait MongoDB7 {
         $mf = $locator->locate('messageFactory', 'app');
 
         try {
-            // Non-Empty Options = Custom Delete
+            // Non-Empty Options = Custom Save
             $options = array_merge([
                 'query' => ["_id"=>\F8\Service\MongoDB7::id($this->_id)],
                 'upsert' => true,
@@ -310,22 +305,22 @@ trait MongoDB7 {
             $result = $collection->replaceOne($options['query'], $array, $driverOptions);
             if ($result->getUpsertedCount()) {
                 $this->_id = $result->getUpsertedId();
-                /** @var Document $this */
                 return $this;
             }
 
             if ($result->getModifiedCount()) {
-                /** @var Document $this */
                 return $this;
             } else {
                 $errors[] = $mf->message(_("Document Not Modified"), 803006, array('document-type'=>get_class($this)));
-                /** @var Document $this */
                 return $this;
             }
+        } catch (Exception $e)  {
+            $locator->logger('f8')->error('Mongo Exception', ['exception' => $e->getMessage(), 'code' => $e->getCode()]);
+            $errors[] = $mf->message(_("Document Not Modified"), 803006, ['document-type'=>get_class($this), 'mongoException'=>$e]);
+            return $this;
         } catch (\Exception $e) {
             $locator->logger('f8')->error('Mongo Exception', ['exception' => $e->getMessage(), 'code' => $e->getCode()]);
             $errors[] = $mf->message(_("Document Not Modified"), 803006, array('document-type'=>get_class($this)));
-            /** @var Document $this */
             return $this;
         }
     }
@@ -338,7 +333,7 @@ trait MongoDB7 {
      * @param array $readOptions
      * @param \F8\Error[] $errors
      * @param \F8\Service\MongoDB7 $db
-     * @return Document $this
+     * @return $this
      */
     public function expandRef(string $paramName, string $className, array $readOptions, &$errors, $db = null) {
         $param = $this->$paramName;
@@ -349,7 +344,6 @@ trait MongoDB7 {
             $object->read($readOptions, $errors, $db);
         }
         $this->$paramName = $object;
-        /** @var Document $this */
         return $this;
     }
 
@@ -357,11 +351,10 @@ trait MongoDB7 {
      * Collapses a document into just an _id reference
      *
      * @param string $paramName
-     * @return Document $this
+     * @return $this
      */
     public function collapseRef(string $paramName) {
         $this->$paramName = ["_id" => $this->$paramName->_id];
-        /** @var Document $this */
         return $this;
     }
 
@@ -393,16 +386,13 @@ trait MongoDB7 {
 
         try {
             $collection = $db->db()->selectCollection($this->getMongoCollection());
-
             $count = $collection->count($options['query'], $driverOptions);
-
             return (bool)$count;
         }
         catch (\Exception $e) {
             echo $e->getMessage();
             $locator->logger('f8')->error('Mongo Exception', ['exception' => $e->getMessage(), 'code' => $e->getCode()]);
             $errors[] = $mf->message(_("Document Not Found"), 803001, array('document-type'=>get_class($this)));
-            /** @var Document $this */
             return false;
         }
     }
@@ -469,7 +459,7 @@ trait MongoDB7 {
      * @param array $readOptions
      * @param \F8\Error[] $errors
      * @param \F8\Service\MongoDB7 $db
-     * @return Document $this
+     * @return $this
      */
     public function expandMongoRef(string $paramName, string $className, array $readOptions, &$errors, $db = null) {
         return $this->expandRef($paramName, $className, $readOptions, $errors, $db);
@@ -481,7 +471,7 @@ trait MongoDB7 {
      *
      * @deprecated Deprecated in favor of generic collapseRef.
      * @param string $paramName
-     * @return Document $this
+     * @return $this
      */
     public function collapseMongoRef(string $paramName) {
         return $this->collapseRef($paramName);
