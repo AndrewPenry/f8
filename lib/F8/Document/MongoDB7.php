@@ -66,7 +66,9 @@ trait MongoDB7 {
         try {
             $collection = $db->db()->selectCollection($this->getMongoCollection());
 
-            $count = $collection->count($options['query'], $driverOptions);
+            $cDriverOptions = $driverOptions;
+            if(isset($cDriverOptions['limit'])) unset($cDriverOptions['limit']);
+            $count = $collection->count($options['query'], $cDriverOptions);
 
             $cursor = $collection->find($options['query'], $driverOptions);
             foreach ($cursor as $result) {
