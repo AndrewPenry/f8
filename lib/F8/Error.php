@@ -3,14 +3,11 @@
 namespace F8;
 
 class Error {
-    private $_router;
-
     public $error;
     public $code;
     public $extra;
 
-    public function __construct(Router $router, $error, $code = 809000, $extra = array()) {
-        $this->_router = $router;
+    public function __construct($error, $code = 809000, $extra = array()) {
         $this->error = $error;
         $this->code = $code;
         $this->extra = $extra;

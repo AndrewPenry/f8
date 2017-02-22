@@ -41,13 +41,6 @@ abstract class Router {
     protected $appNamespace = 'App';
     protected $_rerouting = false;
 
-    /**
-     * @param string $name The name of the db. Generally, something like "mongo"
-     * @param mixed[] $errors
-     * @return mixed
-     */
-    abstract public function getConnection($name, &$errors);
-
     public function __construct(\Psr\Log\LoggerInterface $logger, \F8\ViewSwitch $viewSwitch){
         if (php_sapi_name() == 'cli') {
             $this->isConsole = true;
@@ -57,7 +50,7 @@ abstract class Router {
 
         $this->logger = $logger;
         $this->viewSwitch = $viewSwitch;
-        $this->messageFactory = new \F8\ErrorFactory($this, '\F8\Error');
+        $this->messageFactory = new \F8\ErrorFactory('\F8\Error');
 
         if ($this->isConsole) {
             if(!empty($argv[1])) {
