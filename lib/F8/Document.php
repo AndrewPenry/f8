@@ -21,7 +21,7 @@ abstract class Document {
     protected $_router;
 
     public function __construct(){
-        $this->_router = Locator::getInstance()->locate('router', 'app');
+        $this->_router = Locator::getInstance()->router('app');
     }
 
     /**

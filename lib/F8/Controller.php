@@ -15,10 +15,9 @@ namespace F8;
  *
  * will, by default, call the edit method of the {App}\Controller\Article Controller. It will do this be creating a
  * new instance of the Controller and then calling the method. This allows for the use of $this in endpoint methods.
+ * Example:
  *
- * Endpoint methods should take an F8\Router or {App}\Router as thier first and only parameter. Example:
- *
- * public function doSomething ( F8\Router $router ) { ... }
+ * public function doSomething () { ... }
  *
  * URLS with no second part will call the "view" method by default. In other words, "/article" is equivilent to
  * "/article/view". The default route for root is "/index/view." This means that create an {App}\Controller\Index with
@@ -26,4 +25,13 @@ namespace F8;
  *
  * @package F8
  */
-abstract class Controller { }
+class Controller {
+
+    /** @var \F8\Router */
+    protected $_router;
+
+    public function __construct(){
+        $this->_router = Locator::getInstance()->router('app');
+    }
+
+}

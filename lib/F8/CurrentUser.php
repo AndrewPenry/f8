@@ -13,7 +13,7 @@ namespace F8;
  *
  * @package F8
  */
-abstract class CurrentUser {
+class CurrentUser {
 
     public $loggedIn = false;
     /**
@@ -21,7 +21,7 @@ abstract class CurrentUser {
      */
     public $document;
 
-    public function logIn(Router $router, $data, &$errors) {
+    public function logIn($data, &$errors) {
         $this->loggedIn = true;
         if (session_status() == PHP_SESSION_ACTIVE) {
             $_SESSION['f8_currentUser'] = $this;
@@ -29,7 +29,7 @@ abstract class CurrentUser {
         return $this->loggedIn;
     }
 
-    public function logOut(Router $router, $data, &$errors) {
+    public function logOut($data, &$errors) {
         $this->loggedIn = false;
         if (session_status() == PHP_SESSION_ACTIVE && isset($_SESSION['f8_currentUser'])) {
             unset($_SESSION['f8_currentUser']);

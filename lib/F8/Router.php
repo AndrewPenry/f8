@@ -4,7 +4,7 @@ namespace F8;
 
 use Sluggo\Sluggo;
 
-abstract class Router {
+class Router {
 
     public $url;
     public $controller;
@@ -203,9 +203,9 @@ abstract class Router {
 
     public function followRoute(& $errors){
         $cName = $this->appNamespace.'\\Controller\\'.$this->uc_controller;
-        $c = new $cName($this);
+        $c = new $cName();
         $a = $this->action;
-        return $c->$a($this);
+        return $c->$a();
     }
 
     public function makeRelativeURL($controller, $action, array $vars, $seo = "") {
