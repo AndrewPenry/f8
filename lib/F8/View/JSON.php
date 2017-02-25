@@ -1,18 +1,20 @@
 <?php
-
 namespace F8\View;
 
 use F8\Router;
+use F8\View;
 
-class JSON extends \F8\View {
+class JSON extends View
+{
     public $pretty = false;
 
     /**
      * Renders the output. Should end up echoing or otherwise transmitting data.
      *
      * @param Router $router
-     * @param mixed $data
-     * @param array $errors
+     * @param mixed  $data
+     * @param array  $errors
+     *
      * @return boolean
      */
     public function render(Router $router, $data, &$errors)

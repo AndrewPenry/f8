@@ -5,14 +5,14 @@ use F8\View\JSON;
 
 /**
  * Class ViewSwitch
- *
  * Each App should have one ViewSwitch. The ViewSwitch chooses the appropriate view based on the paramaters or state.
  * For example, it may choose whether to send HTML or JSON based on whether the URL Query conatins "method=ajax".
  * The default view is pretty-print JSON
  *
  * @package F8
  */
-class ViewSwitch {
+class ViewSwitch
+{
 
     public $views;
     /** @var View */
@@ -20,8 +20,9 @@ class ViewSwitch {
 
     /**
      * @param Router $router
-     * @param mixed $data
-     * @param array $errors
+     * @param mixed  $data
+     * @param array  $errors
+     *
      * @return void
      */
     public function go(Router $router, $data, &$errors)
