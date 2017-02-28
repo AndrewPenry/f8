@@ -11,9 +11,9 @@
     ],
     "require": {
         "php": ">=7.0.0",
-        "monolog/monolog": "1.*",
-        "twig/twig": "1.*",
-        "teamonetickets/sluggo": "1.*"
+        "monolog/monolog": "^1.22.0",
+        "twig/twig": "^2.2.0",
+        "teamonetickets/sluggo": "1.0.0"
     },
     "autoload": {
         "psr-0" : {
