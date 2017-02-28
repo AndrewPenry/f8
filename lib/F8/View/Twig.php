@@ -41,9 +41,8 @@ class Twig extends View
         $path = $router->controller . '/' . $router->action . '.twig';
 
         try {
-            $template = $this->twig->loadTemplate($path);
             $data['_router'] = $router;
-            echo $template->render($data);
+            echo $this->twig->render($path, $data);
             return true;
         } catch (\Twig_Error_Loader $e) {
             $errors[] = $router->messageFactory->message("Twig template not found", 809000,

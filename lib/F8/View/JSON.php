@@ -19,7 +19,6 @@ class JSON extends View
      */
     public function render(Router $router, $data, &$errors)
     {
-        // TODO: Implement render() method.
         if (!$router->isConsole) {
             header('Content-type: application/json');
         }

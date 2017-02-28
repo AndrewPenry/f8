@@ -19,7 +19,7 @@ abstract class Document
 
     public function __construct()
     {
-        $this->_router = Locator::getInstance()->router('app');
+        $this->_router = Locator::getInstance()->router();
     }
 
     /**

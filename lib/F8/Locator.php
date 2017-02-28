@@ -41,7 +41,12 @@ class Locator
 
     public function locate(string $type, string $name)
     {
-        return $this->_services[$type][$name] ?? $this->_services[$type]['null'] ?? null;
+        return $this->_services[$type][$name] ?? $this->_services[$type]['default'] ?? $this->_services[$type]['null'] ?? null;
+    }
+
+
+    public function register_logger(string $name, LoggerInterface $service) {
+        $this->register('logger', $name, $service);
     }
 
     /**
@@ -51,7 +56,16 @@ class Locator
      */
     public function logger(string $name): LoggerInterface
     {
-        return $this->_services['logger'][$name] ?? $this->_services['logger']['null'];
+        return $this->locate('logger', $name);
+    }
+
+    /**
+     * @param string $name
+     * @param DBInterface $service
+     */
+    public function register_db(string $name, DBInterface $service)
+    {
+        $this->register('db', $name, $service);
     }
 
     /**
@@ -61,17 +75,25 @@ class Locator
      */
     public function db(string $name): DBInterface
     {
-        return $this->_services['db'][$name] ?? $this->_services['db']['null'];
+        return $this->locate('db', $name);
     }
 
     /**
-     * @param $name
-     *
+     * @param Router $service
+     */
+    public function register_router(Router $service)
+    {
+        $this->register('router', 'default', $service);
+    }
+
+    /**
      * @return Router
      */
-    public function router(string $name)
+    public function router()
     {
-        return $this->_services['router'][$name] ?? $this->_services['router']['null'] ?? null;
+        return $this->locate('router', 'default');
     }
+
+
 
 }

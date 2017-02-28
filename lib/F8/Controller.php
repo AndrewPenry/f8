@@ -12,7 +12,7 @@ namespace F8;
  * new instance of the Controller and then calling the method. This allows for the use of $this in endpoint methods.
  * Example:
  * public function doSomething () { ... }
- * URLS with no second part will call the "view" method by default. In other words, "/article" is equivilent to
+ * URLS with no second part will call the "view" method by default. In other words, "/article" is equivalent to
  * "/article/view". The default route for root is "/index/view." This means that create an {App}\Controller\Index with
  * a public view method is a requirement of F8.
  *
@@ -26,7 +26,7 @@ class Controller
 
     public function __construct()
     {
-        $this->_router = Locator::getInstance()->router('app');
+        $this->_router = Locator::getInstance()->router();
     }
 
 }
