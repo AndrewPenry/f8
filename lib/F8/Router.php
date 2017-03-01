@@ -220,7 +220,7 @@ class Router
         &$errors)
     {
         $cName = $this->appNamespace . '\\Controller\\' . $this->uc_controller;
-        $c = new $cName();
+        $c = new $cName($this);
         $a = $this->action;
         return $c->$a();
     }
@@ -244,62 +244,6 @@ class Router
         $url .= $this->makeRelativeURL($controller, $action, $vars, $seo);
         return $url;
     }
-
-    /**
-     * This converts only public methods of an object into an associative array. It does so recursively and is suitable
-     * to prepare objects for insertion into MongoDB. (MongoDB will throw an error if objects have private or protected
-     * properties.) It will also destroy values with empty keys, a needed step for MongoDB. If you do not wish to
-     * destroy the empty keys, then you will need to override this function in your router.
-     *
-     * @param \stdClass $object
-     * @param bool      $filterNull
-     *
-     * @return array|mixed
-     */
-    public function objectToArray($object, $filterNull = false)
-    {
-        if (!is_object($object) && !is_array($object)) {
-            return $object;
-        }
-        if (is_object($object)) {
-            /** @var \stdClass $object */
-            if (strpos(get_class($object), 'Mongo') === 0) return $object;
-            $object = get_object_vars($object);
-        }
-        /** @var array $object */
-        $a = array_map([$this, 'objectToArray'], $object);
-        $this->array_destroy_empty_key_recursive($a);
-
-        if ($filterNull) {
-            return $this->array_filter_null_recursive($a);
-        } else {
-            return $a;
-        }
-    }
-
-    public function array_filter_null_recursive($input)
-    {
-        foreach ($input as &$value) {
-            if (is_array($value)) {
-                $value = $this->array_filter_null_recursive($value);
-            }
-        }
-        return array_filter($input, function ($v) { return !is_null($v); });
-    }
-
-    public function array_destroy_empty_key_recursive(&$input)
-    {
-        foreach ($input as $key => &$value) {
-            if ($key === "") {
-                unset ($input[$key]);
-            }
-            if (is_array($value)) {
-                $this->array_destroy_empty_key_recursive($value);
-            }
-        }
-        return;
-    }
-
 
     public function danger($message, $code = 809000, $extra = [])
     {
@@ -336,18 +280,5 @@ class Router
         header('Location: ' . $url);
         exit();
     }
-
-    public function sessionOrNewDocument($key, $class)
-    {
-
-        if (isset($_SESSION[$key]) && is_object($_SESSION[$key]) && $_SESSION[$key] instanceof $class) {
-            return $_SESSION[$key];
-        } else {
-            $_SESSION[$key] = new $class($this);
-            return $_SESSION[$key];
-        }
-
-    }
-
 
 }

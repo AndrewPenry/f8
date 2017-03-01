@@ -24,9 +24,9 @@ class Controller
     /** @var \F8\Router */
     protected $_router;
 
-    public function __construct()
+    public function __construct(Router $router)
     {
-        $this->_router = Locator::getInstance()->router();
+        $this->_router = $router;
     }
 
 }
